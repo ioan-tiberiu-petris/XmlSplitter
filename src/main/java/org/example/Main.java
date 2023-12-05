@@ -6,6 +6,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) throws XMLStreamException, IOException {
@@ -34,12 +36,16 @@ public class Main {
         }
         //go through XML
         int count = 0;
+        //set searching tag
         QName name = new QName(null, "start");
+        //set split file prefix
         String outputFilePrefix="testXML";
+        //set split file directory
         String outputFolder = "src/main/resources/splitXML";
 
         try {
             while (true) {
+                //process xml based on element name
                 XMLEvent event = reader.nextEvent();
                 if (event.isStartElement()) {
                     StartElement element = event.asStartElement();
@@ -47,17 +53,21 @@ public class Main {
                         writeToFile(reader, event, outputFolder,outputFilePrefix + (count++) + ".xml");
                     }
                 }
+                //break at the end of xml
                 if (event.isEndDocument())
                     break;
             }
-        } catch (XMLStreamException e) {
-            throw e;
-        } finally {
+        } catch (XMLStreamException exception) {
+            Logger logger = Logger.getLogger(Main.class.getName());
+            logger.log(Level.WARNING, "XMLStreamException");
+        }
+        finally {
             reader.close();
         }
 
     }
 
+    //write the xml parts
     private static void writeToFile(XMLEventReader reader,
                                     XMLEvent startEvent, String folderName,
                                     String filename)
